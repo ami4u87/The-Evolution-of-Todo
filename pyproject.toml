@@ -1,0 +1,13 @@
+[project]
+name = "todo-console-app"
+version = "1.0.0"
+description = "In-Memory Python Console-Based Todo Application (Phase I)"
+requires-python = ">=3.13"
+dependencies = []
+
+[project.scripts]
+todo = "main:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
