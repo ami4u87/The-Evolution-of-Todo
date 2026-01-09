@@ -1,0 +1,12 @@
+name: hackathon-todo
+version: "2.0"
+
+structure:
+  specs_dir: specs
+  features_dir: specs/features
+  api_dir: specs/api
+  database_dir: specs/database
+  ui_dir: specs/ui
+
+phases:
+  - phase-ii-fullstack
