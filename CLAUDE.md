@@ -196,10 +196,91 @@ If ALL true, suggest:
 
 Wait for consent; never auto-create ADRs. Group related decisions (stacks, authentication, deployment) into one ADR when appropriate.
 
-## Basic Project Structure
+## Monorepo Structure (Phase II)
+
+This project is organized as a monorepo with separate frontend and backend applications:
+
+```
+/
+├── .spec-kit/              # Spec-Kit Plus configuration
+│   └── config.yaml        # Project structure config
+├── specs/                  # Organized specifications
+│   ├── features/          # Feature specifications
+│   ├── api/              # API endpoint specs
+│   ├── database/         # Database schema specs
+│   ├── ui/               # UI/UX specifications
+│   ├── overview.md       # Project overview
+│   └── architecture.md   # System architecture
+├── frontend/              # Next.js 16+ application
+│   ├── app/              # App Router pages
+│   ├── components/       # React components
+│   ├── lib/              # Utilities and API client
+│   ├── CLAUDE.md         # Frontend-specific guidelines
+│   └── package.json
+├── backend/               # FastAPI application
+│   ├── app/              # Application code
+│   │   ├── models/       # SQLModel database models
+│   │   ├── schemas/      # Pydantic request/response DTOs
+│   │   ├── services/     # Business logic layer
+│   │   ├── routers/      # API route handlers
+│   │   └── auth/         # Authentication utilities
+│   ├── CLAUDE.md         # Backend-specific guidelines
+│   └── pyproject.toml
+├── history/               # PHRs and ADRs
+│   ├── prompts/          # Prompt History Records
+│   └── adr/              # Architecture Decision Records
+├── docker-compose.yml     # Local development setup
+└── CLAUDE.md             # This file (root guidelines)
+```
+
+### Working in the Monorepo
+
+**Context-Aware Development:**
+- When working on **frontend** features: Follow `/frontend/CLAUDE.md` guidelines
+- When working on **backend** features: Follow `/backend/CLAUDE.md` guidelines
+- When working on **architecture/planning**: Stay at root level
+
+**Coordination Between Frontend and Backend:**
+- API contracts defined in `/specs/api/`
+- Database schemas defined in `/specs/database/`
+- Authentication uses shared `BETTER_AUTH_SECRET` in both `.env` files
+- Frontend calls backend via REST API with JWT tokens
+- All endpoints enforce user-based data isolation
+
+**Spec Organization:**
+- Feature specs → `/specs/features/`
+- API endpoint specs → `/specs/api/`
+- Database schemas → `/specs/database/`
+- UI/UX specs → `/specs/ui/`
+- Architecture decisions → `/specs/architecture.md`
+
+**Development Workflow:**
+1. Create/refine specs in appropriate `/specs/` subdirectory
+2. Implement backend changes in `/backend/` following backend CLAUDE.md
+3. Implement frontend changes in `/frontend/` following frontend CLAUDE.md
+4. Test integration via docker-compose
+5. Commit with descriptive messages
+
+**Local Development:**
+- Use Docker Compose: `docker-compose up`
+  - Frontend: http://localhost:3000
+  - Backend: http://localhost:8000
+  - Database: localhost:5432
+- Or run services individually:
+  - Backend: `cd backend && uvicorn app.main:app --reload`
+  - Frontend: `cd frontend && npm run dev`
+
+**Phase II Key Changes from Phase I:**
+- Multi-user support with authentication
+- Database persistence (PostgreSQL via Neon)
+- RESTful API with JWT tokens
+- Modern web UI (Next.js)
+- User data isolation (all queries filtered by user_id)
+
+## Basic Project Structure (Legacy Reference)
 
 - `.specify/memory/constitution.md` — Project principles
-- `specs/<feature>/spec.md` — Feature requirements
+- `specs/<feature>/spec.md` — Feature requirements (now in `/specs/features/`)
 - `specs/<feature>/plan.md` — Architecture decisions
 - `specs/<feature>/tasks.md` — Testable tasks with cases
 - `history/prompts/` — Prompt History Records
@@ -208,3 +289,6 @@ Wait for consent; never auto-create ADRs. Group related decisions (stacks, authe
 
 ## Code Standards
 See `.specify/memory/constitution.md` for code quality, testing, performance, security, and architecture principles.
+
+For frontend-specific standards, see `/frontend/CLAUDE.md`.
+For backend-specific standards, see `/backend/CLAUDE.md`.
