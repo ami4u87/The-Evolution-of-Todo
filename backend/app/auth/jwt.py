@@ -1,8 +1,12 @@
-"""JWT token verification for authentication.
+"""JWT token verification and creation for authentication.
 
 This module provides utilities to verify JWT tokens issued by Better Auth
-on the frontend and extract user identity.
+on the frontend and extract user identity, plus create new JWT tokens for
+authentication flows.
 """
+
+from datetime import datetime, timedelta
+from uuid import UUID
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer
@@ -40,6 +44,33 @@ def verify_jwt_token(token: str) -> dict:
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token",
         ) from e
+
+
+def create_jwt_token(user_id: UUID) -> str:
+    """
+    Create a new JWT token for a user.
+
+    Args:
+        user_id: User's UUID to embed in the token
+
+    Returns:
+        str: JWT token string
+    """
+    # Create token payload with standard claims
+    payload = {
+        "sub": str(user_id),  # Subject (user identifier)
+        "iat": datetime.utcnow(),  # Issued at timestamp
+        "exp": datetime.utcnow() + timedelta(days=7),  # Expires in 7 days
+    }
+
+    # Encode and sign the token
+    token = jwt.encode(
+        payload,
+        settings.better_auth_secret,
+        algorithm=settings.jwt_algorithm,
+    )
+
+    return token
 
 
 async def get_current_user_id(

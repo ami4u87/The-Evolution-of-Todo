@@ -62,6 +62,26 @@ export interface User {
 }
 
 /**
+ * Authentication request types
+ */
+export interface SignupRequest {
+  email: string;
+  password: string;
+  password_confirm: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  token: string;
+  user_id: string;
+  email: string;
+}
+
+/**
  * API response wrapper for loading states
  */
 export interface ApiResponse<T> {

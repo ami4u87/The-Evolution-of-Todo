@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import create_db_and_tables
 from app.routers import tasks
+from app.routers import auth
 
 # Create FastAPI application
 app = FastAPI(
@@ -48,3 +49,6 @@ def health_check():
 
 # Include task management router
 app.include_router(tasks.router)
+
+# Include authentication router
+app.include_router(auth.router)

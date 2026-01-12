@@ -3,7 +3,7 @@
  * Handles all HTTP communication with authentication
  */
 
-import type { Task, TaskCreate, TaskUpdate, ApiError } from "./types";
+import type { Task, TaskCreate, TaskUpdate, ApiError, SignupRequest, LoginRequest, AuthResponse } from "./types";
 
 /**
  * Base API URL from environment
@@ -174,6 +174,59 @@ export const apiClient = {
       });
     },
   },
+
+  /**
+   * Authentication endpoints
+   */
+  auth: {
+    /**
+     * Sign up with email and password
+     */
+    async signup(data: SignupRequest): Promise<AuthResponse> {
+      // For signup, we don't need auth token
+      const headers: HeadersInit = {
+        "Content-Type": "application/json",
+      };
+
+      const response = await fetch(`${API_BASE_URL}/api/auth/signup`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new ApiClientError(response.status, result as ApiError);
+      }
+
+      return result as AuthResponse;
+    },
+
+    /**
+     * Login with email and password
+     */
+    async login(data: LoginRequest): Promise<AuthResponse> {
+      // For login, we don't need auth token
+      const headers: HeadersInit = {
+        "Content-Type": "application/json",
+      };
+
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new ApiClientError(response.status, result as ApiError);
+      }
+
+      return result as AuthResponse;
+    },
+  },
 };
 
 /**
@@ -206,6 +259,17 @@ export async function deleteTask(taskId: string): Promise<void> {
 
 export async function markTaskComplete(taskId: string): Promise<Task> {
   return apiClient.tasks.markComplete(taskId);
+}
+
+/**
+ * Authentication hook-friendly functions
+ */
+export async function signup(data: SignupRequest): Promise<AuthResponse> {
+  return apiClient.auth.signup(data);
+}
+
+export async function login(data: LoginRequest): Promise<AuthResponse> {
+  return apiClient.auth.login(data);
 }
 
 /**
