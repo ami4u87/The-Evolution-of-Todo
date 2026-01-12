@@ -1,6 +1,6 @@
-# In-Memory Todo Console Application (Phase I)
+# The Evolution of Todo - Full Stack Web Application (Phase II)
 
-A command-line todo application built with Python 3.13+ that stores tasks entirely in memory. This is Phase I of a multi-phase project designed for clean evolution to web, database, and AI-enabled phases.
+A full-stack todo application with web frontend, backend API, and authentication. This is Phase II of a multi-phase project that evolved from a simple console application to a web-based system with user accounts and database persistence.
 
 ## Features
 
@@ -10,281 +10,334 @@ A command-line todo application built with Python 3.13+ that stores tasks entire
 - Mark todos as completed (track progress)
 - Update todo details (title and/or description)
 - Delete todos permanently with confirmation
-- Graceful application exit (Ctrl+C or menu option)
 
-✅ **User-Friendly**:
-- Menu-driven interface (numbered options 1-6)
-- Input validation with clear error messages
-- No crashes on invalid input
-- Confirmation prompts for destructive operations
+✅ **User Authentication**:
+- Email/password registration with validation
+- Secure login with JWT token authentication
+- Password strength requirements (uppercase, lowercase, digit, special character)
+- Email format validation
+- Password confirmation field
+- Duplicate email prevention
+- Auto-login after signup
 
-✅ **Clean Code Architecture**:
-- Strict layer separation (data/logic/UI)
-- 100% docstring coverage with type hints
-- Beginner-friendly, readable Python code
-- Zero external dependencies (stdlib only)
+✅ **Multi-User Support**:
+- User-specific data isolation
+- Secure session management
+- Individual task ownership
+
+✅ **Full-Stack Architecture**:
+- Next.js 16+ frontend with App Router
+- FastAPI backend with PostgreSQL database
+- RESTful API with JWT authentication
+- TypeScript strict mode
+- Clean layer separation (frontend/backend)
 
 ## Prerequisites
 
-- **Python 3.13+** (required)
-- **UV package manager** (recommended for environment setup)
+- **Python 3.13+** (required for backend)
+- **Node.js 18+** (required for frontend)
+- **UV package manager** (recommended for backend environment setup)
+- **npm or yarn** (for frontend dependencies)
 
-Check your Python version:
+Check your versions:
 ```bash
 python --version  # Should show 3.13.x or higher
+node --version    # Should show 18.x or higher
+npm --version     # Should show recent version
 ```
 
 ## Quick Start
 
-### Option 1: Using UV (Recommended)
+### Option 1: Full Stack Development
 
 1. **Clone the repository**:
    ```bash
    git clone <repository-url>
-   cd Hacathorn-II-phase-1-console-app
+   cd Hacathorn-II-The-Evolution-of-Todo
    ```
 
-2. **Create virtual environment**:
+2. **Setup Backend**:
    ```bash
+   cd backend
    uv venv --python 3.13
+   # Activate environment (Windows PowerShell):
+   .\.venv\Scripts\Activate.ps1
+   # Install dependencies:
+   uv pip install -e .
+   # Start backend server:
+   uv run uvicorn app.main:app --reload
    ```
 
-3. **Activate environment**:
-   - Windows PowerShell: `.\.venv\Scripts\Activate.ps1`
-   - Windows CMD: `.\.venv\Scripts\activate.bat`
-   - macOS/Linux: `source .venv/bin/activate`
-
-4. **Run the application**:
+3. **Setup Frontend** (in new terminal):
    ```bash
-   python main.py
+   cd frontend
+   npm install
+   npm run dev
    ```
+
+4. **Access the application**:
+   - Frontend: http://localhost:3000
+   - Backend API: http://localhost:8000
 
 ### Option 2: Using Standard Python venv
 
 1. **Clone and navigate**:
    ```bash
    git clone <repository-url>
-   cd Hacathorn-II-phase-1-console-app
+   cd Hacathorn-II-The-Evolution-of-Todo
    ```
 
-2. **Create virtual environment**:
+2. **Backend setup**:
    ```bash
+   cd backend
    python -m venv .venv
+   # Activate environment and install:
+   # Windows: .venv\Scripts\activate
+   # Unix/Mac: source .venv/bin/activate
+   pip install -e .
+   uvicorn app.main:app --reload
    ```
 
-3. **Activate and run** (same as Option 1 steps 3-4)
+3. **Frontend setup**:
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
 
 ## Usage Guide
 
-After launching with `python main.py`, you'll see the main menu:
+After starting both frontend and backend servers, access the application through your web browser:
 
-```
-=== Todo Application ===
-1. Add Todo
-2. List Todos
-3. Mark Todo as Completed
-4. Update Todo
-5. Delete Todo
-6. Exit
-```
+1. **Open browser** and navigate to: http://localhost:3000
+2. **Sign up** for a new account or **Log in** if you already have an account
+3. **Dashboard** shows your personal todo list
+4. **Create, update, delete** todos with full CRUD functionality
 
-### Examples
+### Authentication Flow
 
-**Create a todo**:
-```
-Choose option: 1
-Enter todo title: Buy groceries
-Enter description: Milk, eggs, bread
-✓ Todo #1 created successfully!
-```
+**Sign up for a new account**:
+1. Navigate to http://localhost:3000/signup
+2. Fill in email and password (must meet strength requirements)
+3. Click "Sign Up"
+4. Automatically logged in and redirected to dashboard
 
-**List todos**:
-```
-Choose option: 2
+**Log in to existing account**:
+1. Navigate to http://localhost:3000/login
+2. Enter your email and password
+3. Click "Log In"
+4. Redirected to dashboard with your todos
 
-=== Your Todos ===
-[1] Buy groceries (Pending)
-    Created: 2026-01-02 10:30:15
-    Description: Milk, eggs, bread
-```
-
-**Mark as completed**:
-```
-Choose option: 3
-Enter todo ID: 1
-✓ Todo #1 marked as completed!
-```
-
-**Exit**:
-```
-Choose option: 6
-Goodbye! Your todos were in-memory only (all data lost).
-```
+**Manage your todos**:
+- **Create**: Click "Add Todo" button and fill in details
+- **Update**: Click on any todo to edit title or description
+- **Complete**: Click checkbox to mark as completed
+- **Delete**: Click trash icon to delete todo permanently
+- **Filter**: Toggle between "All", "Active", and "Completed" views
 
 ## Project Structure
 
 ```
-Hacathorn-II-phase-1-console-app/
-├── src/
-│   ├── __init__.py      # Package marker
-│   ├── models.py        # TodoItem dataclass (data layer)
-│   ├── store.py         # TodoStore class (storage layer)
-│   ├── services.py      # Business logic (validation, CRUD)
-│   └── cli.py           # CLI interface (user interaction)
-├── main.py              # Application entry point
-├── pyproject.toml       # UV project configuration
-├── .python-version      # Python version (3.13+)
-├── .gitignore           # Git ignore rules
-├── README.md            # This file
-├── TESTING.md           # Manual testing checklist
-└── specs/               # Design documents
-    └── 001-todo-console-app/
-        ├── spec.md           # Feature specification
-        ├── plan.md           # Implementation plan
-        ├── tasks.md          # Task breakdown
-        ├── data-model.md     # Data structures
-        ├── quickstart.md     # Detailed setup guide
-        └── contracts/        # Function signatures
-            └── services.md
+Hacathorn-II-The-Evolution-of-Todo/
+├── backend/                 # FastAPI backend application
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── main.py          # Application entry point
+│   │   ├── config.py        # Settings configuration
+│   │   ├── database.py      # Database connection
+│   │   ├── models/          # SQLModel database models
+│   │   │   ├── __init__.py
+│   │   │   ├── user.py      # User model
+│   │   │   └── task.py      # Task model
+│   │   ├── schemas/         # Pydantic request/response schemas
+│   │   │   ├── __init__.py
+│   │   │   ├── task.py      # Task DTOs
+│   │   │   └── auth.py      # Authentication DTOs
+│   │   ├── routers/         # API route handlers
+│   │   │   ├── __init__.py
+│   │   │   ├── tasks.py     # Task endpoints
+│   │   │   └── auth.py      # Authentication endpoints
+│   │   ├── services/        # Business logic layer
+│   │   │   ├── __init__.py
+│   │   │   ├── task_service.py   # Task operations
+│   │   │   └── auth_service.py   # Authentication operations
+│   │   └── auth/            # Authentication utilities
+│   │       ├── __init__.py
+│   │       ├── jwt.py       # JWT verification
+│   │       └── password.py  # Password hashing
+│   ├── pyproject.toml       # Dependencies and configuration
+│   ├── .env                 # Environment variables (git-ignored)
+│   └── README.md            # Backend-specific documentation
+├── frontend/                # Next.js 16+ frontend application
+│   ├── app/                 # App Router pages
+│   │   ├── layout.tsx       # Root layout
+│   │   ├── page.tsx         # Landing page
+│   │   ├── login/           # Authentication pages
+│   │   │   └── page.tsx     # Login page
+│   │   ├── signup/          # Sign up page
+│   │   │   └── page.tsx     # Sign up page
+│   │   └── dashboard/       # Protected dashboard
+│   │       └── page.tsx     # Task dashboard
+│   ├── components/          # React components
+│   ├── lib/                 # Utilities and API client
+│   │   ├── api-client.ts    # API communication
+│   │   └── types.ts         # TypeScript types
+│   ├── public/              # Static assets
+│   ├── package.json         # Dependencies
+│   ├── .env.local           # Environment variables
+│   └── README.md            # Frontend-specific documentation
+├── specs/                   # Specification documents
+│   ├── features/            # Feature specifications
+│   ├── api/                 # API endpoint specs
+│   ├── database/            # Database schema specs
+│   └── architecture.md      # System architecture
+├── history/                 # Prompt History Records and ADRs
+│   └── prompts/             # PHRs for learning and traceability
+├── .env                     # Shared environment variables
+├── docker-compose.yml       # Local development setup
+├── README.md                # This file
+└── CLAUDE.md                # Development guidelines
 ```
 
 ## Architecture
 
-This application follows **strict layered architecture** per the project constitution:
+This application follows **strict layered architecture** across frontend and backend:
 
-1. **Data Layer** (`src/models.py`):
-   - TodoItem dataclass
-   - Pure data structures, no logic
+### Backend Architecture (FastAPI)
+1. **Data Layer** (`backend/app/models/`):
+   - SQLModel database models (User, Task)
+   - SQLAlchemy ORM integration
+   - PostgreSQL database schema
 
-2. **Storage Layer** (`src/store.py`):
-   - TodoStore class
-   - In-memory CRUD operations
-   - Auto-incrementing ID generation
+2. **Schema Layer** (`backend/app/schemas/`):
+   - Pydantic request/response DTOs
+   - Input validation and serialization
+   - API contract definitions
 
-3. **Business Logic Layer** (`src/services.py`):
-   - Service functions with validation
-   - NO I/O operations (no input()/print())
-   - Reusable for future API endpoints
+3. **Business Logic Layer** (`backend/app/services/`):
+   - Service classes with validation
+   - Reusable business operations
+   - Database transaction management
 
-4. **UI Layer** (`src/cli.py`):
-   - Menu-driven CLI interface
-   - All user interaction (input/output)
-   - NO business logic
+4. **API Layer** (`backend/app/routers/`):
+   - FastAPI route handlers
+   - Authentication middleware
+   - Request/response processing
+
+5. **Authentication Layer** (`backend/app/auth/`):
+   - JWT token generation and verification
+   - Password hashing utilities
+   - User session management
+
+### Frontend Architecture (Next.js 16+)
+1. **Page Layer** (`frontend/app/`):
+   - App Router pages
+   - Server and Client components
+   - Route-based navigation
+
+2. **Component Layer** (`frontend/components/`):
+   - Reusable UI components
+   - Feature-specific components
+   - Interactive elements
+
+3. **Service Layer** (`frontend/lib/`):
+   - API client with authentication
+   - Type definitions and interfaces
+   - Utility functions
 
 ## Key Features & Design Decisions
 
-### In-Memory Only (Phase I Constraint)
-- All todos stored in Python lists/dicts
-- Data lost when application exits (by design)
-- No file I/O, no database connections
-- Session-scoped data lifetime
+### Multi-User Support
+- Individual user accounts with email/password authentication
+- User-specific data isolation
+- Secure session management with JWT tokens
 
-### Validation & Error Handling
-- Title cannot be empty (validated before creation/update)
-- ID validation (must exist in store)
-- Type validation (graceful handling of non-numeric input)
-- User-friendly error messages (no stack traces shown to user)
+### Authentication & Security
+- Password strength validation (uppercase, lowercase, digit, special character)
+- Secure password hashing with SHA-256 (temporary until bcrypt resolved)
+- JWT token-based authentication
+- Proper validation and error handling
 
-### ID Management
-- Auto-incrementing IDs (start from 1)
-- Monotonic counter (IDs never reused, even after deletion)
-- Unbounded integers (no practical limit in Phase I)
+### Database Integration
+- PostgreSQL database with SQLModel
+- User and Task relationship management
+- Data persistence across sessions
 
-### Status Management
-- Default status: "pending"
-- One-way transition: pending → completed
-- No "uncomplete" in Phase I (future enhancement)
+### Frontend-Backend Communication
+- RESTful API design
+- CORS configuration for secure communication
+- Proper error handling and user feedback
 
 ## Testing
 
-Run manual tests using the comprehensive checklist:
-```bash
-# Review the testing guide
-cat TESTING.md
-```
+### Backend Testing
+- API endpoint validation
+- Authentication flow testing
+- Database integration tests
+- Error condition verification
 
-**Test coverage includes**:
-- 35+ test cases across 5 user stories
-- Edge case validation
-- Error handling verification
-- Constitution compliance checks
-- Cross-platform testing (Windows/macOS/Linux)
+### Frontend Testing
+- User interface validation
+- Authentication flow testing
+- API integration testing
+- Cross-browser compatibility
 
-See `TESTING.md` for complete manual testing procedures.
+## Technology Stack
 
-## Constraints (Phase I)
+**Backend:**
+- FastAPI for web framework
+- SQLModel for database ORM
+- PostgreSQL for data storage
+- JWT for authentication
+- Python 3.13+ for runtime
 
-**Explicitly Prohibited**:
-- ❌ File system operations (no saving/loading)
-- ❌ Database connections
-- ❌ External dependencies (pip packages)
-- ❌ Web frameworks or APIs
-- ❌ Asynchronous/concurrent code
-- ❌ AI features
+**Frontend:**
+- Next.js 16+ with App Router
+- TypeScript for type safety
+- Tailwind CSS for styling
+- Node.js for runtime
 
-**Technology Limits**:
-- ✅ Python 3.13+ standard library only
-- ✅ Cross-platform compatible (Windows/macOS/Linux)
-- ✅ Single-user, single-session application
-
-## Migration to Phase II
-
-This codebase is designed for clean evolution:
-
-| Phase I | Phase II (Future) |
-|---------|------------------|
-| `src/models.py` | → Add SQLAlchemy decorators |
-| `src/store.py` | → Replace with repository pattern |
-| `src/services.py` | → **Keep as-is** (zero changes!) |
-| `src/cli.py` | → Replace with FastAPI routes |
-| `main.py` | → Replace with uvicorn launcher |
-
-**Validation**: Zero changes to `services.py` validates constitution principle V (Extensibility).
+**Development:**
+- UV for Python package management
+- npm/yarn for JavaScript dependencies
+- Git for version control
 
 ## Troubleshooting
 
-### `python: command not found`
-- Install Python 3.13+: [https://www.python.org/downloads/](https://www.python.org/downloads/)
-- Try `python3` or `py` instead of `python`
+### Backend Issues
+- **Port already in use**: Change port in uvicorn command
+- **Database connection**: Verify PostgreSQL is running
+- **Authentication errors**: Check JWT secret in .env files
 
-### `uv: command not found`
-- Install UV: [https://astral.sh/uv](https://astral.sh/uv)
-- Or use standard `python -m venv` instead
+### Frontend Issues
+- **Cannot connect to backend**: Verify CORS settings and API URL
+- **Environment variables**: Ensure NEXT_PUBLIC_API_URL is set correctly
+- **Build errors**: Check TypeScript compilation errors
 
-### ModuleNotFoundError
-- Ensure you're in the project root directory
-- Activate virtual environment
-- Verify `src/` directory exists with `__init__.py`
-
-### Application won't start
-1. Check Python version: `python --version` (must be 3.13+)
-2. Verify project structure matches above
-3. Try running from project root: `python main.py`
-
-### Unicode encoding errors
-- **Fixed in current version**: All Unicode symbols replaced with ASCII-safe alternatives
-- Error messages now use `[OK]` and `[ERROR]` instead of checkmark/cross symbols
-- No action needed for Windows users
+### Common Setup Issues
+- **Python version**: Ensure Python 3.13+ is installed
+- **Node version**: Ensure Node.js 18+ is installed
+- **Dependency conflicts**: Clear node_modules and reinstall
 
 ## Documentation
 
-- **Quick Setup**: See above or `specs/001-todo-console-app/quickstart.md`
-- **Feature Spec**: `specs/001-todo-console-app/spec.md` (user stories, requirements)
-- **Implementation Plan**: `specs/001-todo-console-app/plan.md` (architecture, decisions)
-- **Task Breakdown**: `specs/001-todo-console-app/tasks.md` (development tasks)
-- **Data Model**: `specs/001-todo-console-app/data-model.md` (entities, relationships)
-- **API Contracts**: `specs/001-todo-console-app/contracts/services.md` (function signatures)
-- **Manual Testing**: `TESTING.md` (comprehensive test checklist)
+- **Backend**: See `backend/README.md` for backend-specific details
+- **Frontend**: See `frontend/README.md` for frontend-specific details
+- **Architecture**: See `specs/architecture.md` for system design
+- **API Spec**: See `specs/api/` for endpoint specifications
+- **Database**: See `specs/database/` for schema definitions
 
-## Constitution
+## Migration from Phase I
 
-This project follows strict principles defined in `.specify/memory/constitution.md`:
-1. **Simplicity Before Scalability** - Simple solutions first
-2. **Clear Separation of Concerns** - Strict data/logic/UI layering
-3. **Readability and Beginner-Friendly Code** - Educational code quality
-4. **Deterministic Behavior** - No hidden state
-5. **Extensibility for Future Phases** - Clean migration path to Phase II
-6. **Input Validation and User-Friendly Errors** - Robust error handling
+The application evolved from a console-based single-user application to a full-stack multi-user web application while preserving business logic:
+
+| Phase I (Console) | Phase II (Web) |
+|-------------------|----------------|
+| `src/services.py` | → `backend/app/services/` (preserved logic) |
+| `src/models.py` | → `backend/app/models/` (enhanced with SQLModel) |
+| `src/cli.py` | → `frontend/` (replaced with Next.js UI) |
+| In-memory storage | → PostgreSQL database |
+| Single-user | → Multi-user with authentication |
 
 ## License
 
@@ -297,18 +350,17 @@ This project follows strict principles defined in `.specify/memory/constitution.
 ## Support
 
 For questions or issues:
-1. Check `TESTING.md` for common scenarios
-2. Review `specs/001-todo-console-app/quickstart.md`
-3. Read `specs/001-todo-console-app/plan.md` for architecture details
-4. Open a GitHub issue with:
-   - Python version (`python --version`)
+1. Check backend and frontend README files for specific troubleshooting
+2. Review architecture documentation in `specs/` directory
+3. Open a GitHub issue with:
+   - Python/Node.js versions
    - Operating system
    - Steps to reproduce
    - Error messages (full output)
 
 ---
 
-**Phase I Complete** ✅
+**Phase II Complete** ✅
 
-All 5 user stories implemented. Full CRUD functionality available.
-Ready for manual testing and Phase II planning.
+Full-stack application with authentication implemented. Multi-user support with secure login/registration.
+Ready for deployment and Phase III planning.
