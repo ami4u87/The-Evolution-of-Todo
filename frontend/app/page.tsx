@@ -10,12 +10,20 @@ export default function Home() {
             <h1 className="text-2xl font-bold text-gray-900">
               Todo App
             </h1>
-            <Link
-              href="/login"
-              className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors"
-            >
-              Sign In
-            </Link>
+            <div className="flex gap-2">
+              <Link
+                href="/signup"
+                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
+              >
+                Sign Up
+              </Link>
+              <Link
+                href="/login"
+                className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors"
+              >
+                Sign In
+              </Link>
+            </div>
           </div>
         </div>
       </header>
@@ -35,16 +43,16 @@ export default function Home() {
 
           <div className="mt-10 flex gap-4 justify-center">
             <Link
-              href="/login"
+              href="/signup"
               className="px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors shadow-lg hover:shadow-xl"
             >
-              Get Started
+              Sign Up
             </Link>
             <Link
-              href="/dashboard"
+              href="/login"
               className="px-8 py-3 bg-white text-gray-700 font-medium rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors border border-gray-300 shadow-md hover:shadow-lg"
             >
-              View Dashboard
+              Sign In
             </Link>
           </div>
         </div>
@@ -165,12 +173,20 @@ export default function Home() {
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
             Ready to get organized?
           </h2>
-          <Link
-            href="/login"
-            className="inline-block px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors shadow-lg hover:shadow-xl"
-          >
-            Start Managing Your Tasks
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/signup"
+              className="px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors shadow-lg hover:shadow-xl"
+            >
+              Create Account
+            </Link>
+            <Link
+              href="/login"
+              className="px-8 py-3 bg-white text-gray-700 font-medium rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors border border-gray-300 shadow-md hover:shadow-lg"
+            >
+              Sign In
+            </Link>
+          </div>
         </div>
       </main>
 

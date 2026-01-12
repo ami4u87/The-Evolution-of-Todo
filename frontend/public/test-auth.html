@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWT Token Test - Evolution of Todo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .info {
+            background: #f0f9ff;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .token-display {
+            background: #1f2937;
+            color: #10b981;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            word-break: break-all;
+            margin: 15px 0;
+        }
+        .btn {
+            background: #3b82f6;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #2563eb;
+        }
+        .btn-success {
+            background: #10b981;
+        }
+        .btn-success:hover {
+            background: #059669;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 6px;
+            margin: 15px 0;
+            font-weight: 500;
+        }
+        .status.success {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+        .status.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 JWT Authentication Test</h1>
+
+        <div class="info">
+            <strong>JWT Authentication Specialist Subagent</strong><br>
+            This page allows you to test the frontend with a generated JWT token.
+        </div>
+
+        <h3>Current Token:</h3>
+        <div class="token-display" id="tokenDisplay">
+            No token set
+        </div>
+
+        <div id="userInfo" class="info" style="display: none;">
+            <strong>Token Claims:</strong><br>
+            <span id="userIdDisplay"></span><br>
+            <span id="emailDisplay"></span><br>
+            <span id="expiryDisplay"></span>
+        </div>
+
+        <div id="status"></div>
+
+        <button class="btn" onclick="setToken()">Set JWT Token</button>
+        <button class="btn btn-success" onclick="goToDashboard()">Go to Dashboard</button>
+        <button class="btn" onclick="clearToken()">Clear Token</button>
+        <button class="btn" onclick="testAPI()">Test API Connection</button>
+
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e5e7eb;">
+            <h3>API Test Results:</h3>
+            <div id="apiResults" style="background: #f9fafb; padding: 15px; border-radius: 6px; min-height: 50px;">
+                Click "Test API Connection" to verify backend integration
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // JWT token from the authentication specialist
+        const JWT_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4MGJhYjlhMy03MmQ2LTRhMDktOTc3OC05ZjgxZWNkY2I5YzMiLCJlbWFpbCI6InRlc3QtdXNlckBleGFtcGxlLmNvbSIsImlhdCI6MTc2ODEyODY5NCwiZXhwIjoxNzY4NzMzNDk0fQ.XFhTSg6A1m-TOq26l-juZfBhpSSBQ2nOniLGsuZAR1Q";
+
+        // Backend API URL
+        const API_URL = "http://localhost:8000";
+
+        // Parse JWT token to display info
+        function parseJWT(token) {
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+                return JSON.parse(jsonPayload);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        // Display current token
+        function displayToken() {
+            const token = localStorage.getItem('auth_token');
+            const display = document.getElementById('tokenDisplay');
+            const userInfo = document.getElementById('userInfo');
+
+            if (token) {
+                display.textContent = token;
+                const claims = parseJWT(token);
+                if (claims) {
+                    document.getElementById('userIdDisplay').textContent = `User ID: ${claims.sub}`;
+                    document.getElementById('emailDisplay').textContent = `Email: ${claims.email}`;
+                    const expDate = new Date(claims.exp * 1000);
+                    document.getElementById('expiryDisplay').textContent = `Expires: ${expDate.toLocaleString()}`;
+                    userInfo.style.display = 'block';
+                }
+            } else {
+                display.textContent = 'No token set';
+                userInfo.style.display = 'none';
+            }
+        }
+
+        // Set token in localStorage
+        function setToken() {
+            localStorage.setItem('auth_token', JWT_TOKEN);
+            showStatus('Token saved to localStorage!', 'success');
+            displayToken();
+        }
+
+        // Clear token
+        function clearToken() {
+            localStorage.removeItem('auth_token');
+            showStatus('Token cleared from localStorage', 'error');
+            displayToken();
+        }
+
+        // Navigate to dashboard
+        function goToDashboard() {
+            const token = localStorage.getItem('auth_token');
+            if (!token) {
+                showStatus('Please set token first!', 'error');
+                return;
+            }
+            window.location.href = '/dashboard';
+        }
+
+        // Test API connection
+        async function testAPI() {
+            const token = localStorage.getItem('auth_token');
+            const resultsDiv = document.getElementById('apiResults');
+
+            if (!token) {
+                showStatus('Please set token first!', 'error');
+                return;
+            }
+
+            resultsDiv.innerHTML = '<div style="color: #3b82f6;">🔄 Testing API connection...</div>';
+
+            try {
+                // Test 1: Health check
+                const healthResponse = await fetch(`${API_URL}/health`);
+                const healthData = await healthResponse.json();
+
+                // Test 2: Get tasks with authentication
+                const tasksResponse = await fetch(`${API_URL}/api/tasks/`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const tasksData = await tasksResponse.json();
+
+                // Display results
+                resultsDiv.innerHTML = `
+                    <div style="color: #10b981; font-weight: bold; margin-bottom: 10px;">✅ API Connection Successful!</div>
+                    <div style="margin-top: 10px;">
+                        <strong>Health Check:</strong> ${healthData.status}<br>
+                        <strong>Authentication:</strong> Valid (HTTP ${tasksResponse.status})<br>
+                        <strong>Tasks Retrieved:</strong> ${tasksData.length} task(s)<br>
+                        <strong>User ID:</strong> ${tasksData[0]?.user_id || 'N/A'}
+                    </div>
+                    ${tasksData.length > 0 ? `
+                        <div style="margin-top: 15px; padding: 10px; background: white; border-radius: 4px;">
+                            <strong>Tasks:</strong><br>
+                            ${tasksData.map(task => `
+                                • ${task.title} (${task.status})<br>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                `;
+                showStatus('API test successful! Backend is connected.', 'success');
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div style="color: #ef4444; font-weight: bold;">❌ API Connection Failed</div>
+                    <div style="margin-top: 10px; color: #991b1b;">
+                        Error: ${error.message}<br>
+                        <br>
+                        <strong>Troubleshooting:</strong><br>
+                        • Make sure backend is running on http://localhost:8000<br>
+                        • Check CORS configuration<br>
+                        • Verify JWT token is valid
+                    </div>
+                `;
+                showStatus('API test failed. Check console for details.', 'error');
+                console.error('API Test Error:', error);
+            }
+        }
+
+        // Show status message
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status ${type}`;
+            statusDiv.textContent = message;
+            setTimeout(() => {
+                statusDiv.textContent = '';
+                statusDiv.className = 'status';
+            }, 3000);
+        }
+
+        // Initialize
+        displayToken();
+    </script>
+</body>
+</html>
