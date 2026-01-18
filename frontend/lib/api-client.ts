@@ -3,7 +3,7 @@
  * Handles all HTTP communication with authentication
  */
 
-import type { Task, TaskCreate, TaskUpdate, ApiError, SignupRequest, LoginRequest, AuthResponse } from "./types";
+import type { Task, TaskCreate, TaskUpdate, ApiError, SignupRequest, LoginRequest, AuthResponse, ChatRequest, ChatResponse, ChatHealthResponse } from "./types";
 
 /**
  * Base API URL from environment
@@ -227,6 +227,28 @@ export const apiClient = {
       return result as AuthResponse;
     },
   },
+
+  /**
+   * Chat endpoints (Phase III: AI Chatbot)
+   */
+  chat: {
+    /**
+     * Send a message to the AI chatbot
+     */
+    async send(data: ChatRequest): Promise<ChatResponse> {
+      return fetchWithAuth<ChatResponse>("/api/chat", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    },
+
+    /**
+     * Check chat service health
+     */
+    async health(): Promise<ChatHealthResponse> {
+      return fetchWithAuth<ChatHealthResponse>("/api/chat/health");
+    },
+  },
 };
 
 /**
@@ -285,4 +307,15 @@ export function clearAuthToken(): void {
   if (typeof window !== "undefined") {
     localStorage.removeItem("auth_token");
   }
+}
+
+/**
+ * Chat hook-friendly functions
+ */
+export async function sendChatMessage(data: ChatRequest): Promise<ChatResponse> {
+  return apiClient.chat.send(data);
+}
+
+export async function getChatHealth(): Promise<ChatHealthResponse> {
+  return apiClient.chat.health();
 }

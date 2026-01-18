@@ -89,3 +89,34 @@ export interface ApiResponse<T> {
   error: ApiError | null;
   loading: boolean;
 }
+
+/**
+ * Chat types for AI chatbot
+ */
+export interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+  timestamp?: string;
+}
+
+export interface ToolAction {
+  tool: string;
+  arguments: Record<string, unknown>;
+  result: Record<string, unknown> | string | null;
+}
+
+export interface ChatRequest {
+  message: string;
+  conversation_id?: string | null;
+}
+
+export interface ChatResponse {
+  response: string;
+  conversation_id: string;
+  actions_taken: ToolAction[];
+}
+
+export interface ChatHealthResponse {
+  status: "available" | "unavailable";
+  model: string | null;
+}
