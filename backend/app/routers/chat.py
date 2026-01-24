@@ -81,11 +81,15 @@ async def chat(
         return response
 
     except Exception as e:
-        # Log the error for debugging
-        print(f"Chat error for user {user_id}: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to process chat message. Please try again.",
+        error_msg = str(e)
+        print(f"Chat error for user {user_id}: {error_msg}")
+
+        # Return a user-friendly response instead of 500
+        from uuid import uuid4
+        return ChatResponse(
+            response=f"Sorry, I couldn't process that request. Please try rephrasing. (Error: {error_msg[:100]})",
+            conversation_id=request.conversation_id or uuid4(),
+            actions_taken=[],
         )
 
 

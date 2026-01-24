@@ -160,25 +160,37 @@ TOOLS = [
     }
 ]
 
-SYSTEM_PROMPT = """You are a helpful task management assistant. You help users manage their todo tasks through natural language conversation.
+SYSTEM_PROMPT = """You are a task management assistant. Help users manage their todo tasks.
 
-You have access to the following tools to manage tasks:
-- list_tasks: List all tasks (can filter by status)
-- create_task: Create a new task
-- update_task: Update an existing task (title, description, or status)
-- delete_task: Delete a task permanently
-- mark_complete: Mark a task as completed
-- search_tasks: Search for tasks by title or description
+IMPORTANT RULES:
+- Use ONLY the provided tool functions. Do NOT write function calls as text.
+- NEVER create a task unless the user explicitly says "add", "create", or "new task".
+- For creating tasks: call create_task with the title extracted from the user's message.
+- For listing tasks: call list_tasks.
+- For completing tasks: first call list_tasks to find the task ID, then call mark_complete with that ID.
+- For uncompleting/unchecking tasks: first call list_tasks to find the task ID, then call update_task with status="pending".
+- For deleting tasks: first call list_tasks to find the task ID, then call delete_task with that ID.
+- For updating tasks: first call list_tasks to find the task ID, then call update_task with that ID.
+- Always use list_tasks instead of search_tasks when you need to find a task ID.
+- After performing an action, respond with a short confirmation message.
+- Format task lists clearly with status indicators.
+- If no tasks exist, say so clearly.
 
-Guidelines:
-1. When the user wants to create a task, extract the title and optional description from their message.
-2. When the user wants to modify or delete a task, first use search_tasks to find it by name, then use the returned task ID.
-3. Always confirm actions taken in a friendly, concise manner.
-4. If a task operation fails, explain what went wrong.
-5. When listing tasks, format them nicely with their status.
-6. Be helpful and proactive - if the user's intent is clear, take action.
+Understanding user intent:
+- "uncheck", "undo", "mark as not done", "mark as pending", "uncomplete" → update_task(status="pending")
+- "check", "done", "complete", "mark as done", "finish" → mark_complete
+- "add", "create", "new task" → create_task
+- "remove", "delete" → delete_task
+- "list", "show", "what are my tasks" → list_tasks
+- "rename", "change title", "update" → update_task
 
-Remember: You can only manage tasks for the current authenticated user. All operations are automatically scoped to their account."""
+Examples:
+- "Add task: Buy milk" → create_task(title="Buy milk")
+- "List my tasks" → list_tasks()
+- "Complete the milk task" → list_tasks(), then mark_complete(task_id=...)
+- "Uncheck walk the dog" → list_tasks(), then update_task(task_id=..., status="pending")
+- "Delete grocery task" → list_tasks(), then delete_task(task_id=...)
+- "Rename milk task to Buy groceries" → list_tasks(), then update_task(task_id=..., title="Buy groceries")"""
 
 
 class ChatService:
@@ -321,73 +333,107 @@ class ChatService:
             {"role": "user", "content": message}
         ]
 
-        # Call AI API (works with both OpenAI and Groq)
-        response = self.client.chat.completions.create(
-            model=self.model,
-            messages=messages,
-            tools=TOOLS,
-            tool_choice="auto",
-            max_tokens=1000,
-        )
+        max_retries = 2
+        max_tool_rounds = 5
 
-        # Process the response
-        assistant_message = response.choices[0].message
+        for attempt in range(max_retries):
+            try:
+                # Call AI API (works with both OpenAI and Groq)
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=messages,
+                    tools=TOOLS,
+                    tool_choice="auto",
+                    max_tokens=1000,
+                )
 
-        # Handle tool calls if any
-        while assistant_message.tool_calls:
-            # Add assistant message with tool calls
-            messages.append({
-                "role": "assistant",
-                "content": assistant_message.content,
-                "tool_calls": [
-                    {
-                        "id": tc.id,
-                        "type": "function",
-                        "function": {
-                            "name": tc.function.name,
-                            "arguments": tc.function.arguments
-                        }
-                    }
-                    for tc in assistant_message.tool_calls
-                ]
-            })
+                # Process the response
+                assistant_message = response.choices[0].message
 
-            # Execute each tool call
-            for tool_call in assistant_message.tool_calls:
-                tool_name = tool_call.function.name
-                arguments = json.loads(tool_call.function.arguments)
+                # Handle tool calls if any
+                tool_rounds = 0
+                while assistant_message.tool_calls and tool_rounds < max_tool_rounds:
+                    tool_rounds += 1
 
-                # Execute the tool
-                result = self._execute_tool(tool_name, arguments)
+                    # Add assistant message with tool calls
+                    messages.append({
+                        "role": "assistant",
+                        "content": assistant_message.content,
+                        "tool_calls": [
+                            {
+                                "id": tc.id,
+                                "type": "function",
+                                "function": {
+                                    "name": tc.function.name,
+                                    "arguments": tc.function.arguments
+                                }
+                            }
+                            for tc in assistant_message.tool_calls
+                        ]
+                    })
 
-                # Record the action
-                self.actions_taken.append(ToolAction(
-                    tool=tool_name,
-                    arguments=arguments,
-                    result=result
-                ))
+                    # Execute each tool call
+                    for tool_call in assistant_message.tool_calls:
+                        tool_name = tool_call.function.name
+                        try:
+                            arguments = json.loads(tool_call.function.arguments) if tool_call.function.arguments else {}
+                        except (json.JSONDecodeError, TypeError):
+                            arguments = {}
 
-                # Add tool result to messages
-                messages.append({
-                    "role": "tool",
-                    "tool_call_id": tool_call.id,
-                    "content": json.dumps(result)
-                })
+                        if not isinstance(arguments, dict):
+                            arguments = {}
 
-            # Get next response from AI
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=messages,
-                tools=TOOLS,
-                tool_choice="auto",
-                max_tokens=1000,
-            )
+                        # Execute the tool
+                        result = self._execute_tool(tool_name, arguments)
 
-            assistant_message = response.choices[0].message
+                        # Record the action
+                        self.actions_taken.append(ToolAction(
+                            tool=tool_name,
+                            arguments=arguments,
+                            result=result
+                        ))
 
-        # Return final response
+                        # Add tool result to messages
+                        messages.append({
+                            "role": "tool",
+                            "tool_call_id": tool_call.id,
+                            "content": json.dumps(result)
+                        })
+
+                    # Get next response from AI
+                    response = self.client.chat.completions.create(
+                        model=self.model,
+                        messages=messages,
+                        tools=TOOLS,
+                        tool_choice="auto",
+                        max_tokens=1000,
+                    )
+
+                    assistant_message = response.choices[0].message
+
+                # Return final response
+                return ChatResponse(
+                    response=assistant_message.content or "Done! Your request has been processed.",
+                    conversation_id=conversation_id,
+                    actions_taken=self.actions_taken
+                )
+
+            except Exception as e:
+                error_msg = str(e)
+                # Retry on tool_use_failed errors (common with Groq/Llama)
+                if "tool_use_failed" in error_msg and attempt < max_retries - 1:
+                    # Reset and retry with a more explicit prompt
+                    self.actions_taken = []
+                    messages = [
+                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {"role": "user", "content": f"Please use the tool functions to help with this request: {message}"}
+                    ]
+                    continue
+                raise
+
+        # Fallback if all retries fail
         return ChatResponse(
-            response=assistant_message.content or "I processed your request.",
+            response="I had trouble processing your request. Please try rephrasing it.",
             conversation_id=conversation_id,
             actions_taken=self.actions_taken
         )

@@ -29,8 +29,8 @@ class ChatRequest(BaseModel):
 class ToolAction(BaseModel):
     """Record of a tool action taken by the AI."""
     tool: str = Field(description="Tool name that was called")
-    arguments: dict[str, Any] = Field(description="Arguments passed to the tool")
-    result: dict[str, Any] | str | None = Field(description="Result from the tool")
+    arguments: dict[str, Any] = Field(default_factory=dict, description="Arguments passed to the tool")
+    result: Any = Field(default=None, description="Result from the tool")
 
 
 class ChatResponse(BaseModel):

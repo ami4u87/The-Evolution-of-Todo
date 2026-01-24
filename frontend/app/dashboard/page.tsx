@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import ChatFloatingButton from "@/components/chat/ChatFloatingButton";
 import TaskForm from "@/components/tasks/TaskForm";
 import TaskList from "@/components/tasks/TaskList";
 import {
@@ -191,6 +192,9 @@ export default function DashboardPage() {
           </div>
         </div>
       </main>
+
+      {/* Floating AI Chat Button */}
+      <ChatFloatingButton />
     </div>
   );
 }
