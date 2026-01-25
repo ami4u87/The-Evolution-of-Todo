@@ -6,6 +6,7 @@ from app.config import settings
 from app.database import create_db_and_tables
 from app.routers import tasks
 from app.routers import auth
+from app.routers import chat
 
 # Create FastAPI application
 app = FastAPI(
@@ -52,3 +53,6 @@ app.include_router(tasks.router)
 
 # Include authentication router
 app.include_router(auth.router)
+
+# Include chat router (Phase III: AI Chatbot)
+app.include_router(chat.router)

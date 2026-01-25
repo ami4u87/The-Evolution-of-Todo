@@ -1,8 +1,15 @@
-# The Evolution of Todo - Full Stack Web Application (Phase II)
+# The Evolution of Todo - AI-Powered Task Management (Phase III)
 
-A full-stack todo application with web frontend, backend API, and authentication. This is Phase II of a multi-phase project that evolved from a simple console application to a web-based system with user accounts and database persistence.
+A full-stack todo application with AI-powered chat interface for natural language task management. This is Phase III of a multi-phase project that evolved from a console application to a web-based system with AI assistance.
 
 ## Features
+
+✅ **AI-Powered Chat Interface** (NEW in Phase III):
+- Natural language task management
+- Chat with AI assistant to create, update, delete, and complete tasks
+- Commands like "Add task: Buy milk", "List my tasks", "Mark grocery task as done"
+- Intelligent task search and matching
+- Real-time tool execution feedback
 
 ✅ **Full CRUD Operations**:
 - Create new todo items with title and optional description
@@ -29,6 +36,7 @@ A full-stack todo application with web frontend, backend API, and authentication
 - Next.js 16+ frontend with App Router
 - FastAPI backend with PostgreSQL database
 - RESTful API with JWT authentication
+- OpenAI integration for AI chat
 - TypeScript strict mode
 - Clean layer separation (frontend/backend)
 
@@ -113,6 +121,7 @@ After starting both frontend and backend servers, access the application through
 2. **Sign up** for a new account or **Log in** if you already have an account
 3. **Dashboard** shows your personal todo list
 4. **Create, update, delete** todos with full CRUD functionality
+5. **AI Chat** - Click "AI Chat" button to access the conversational interface
 
 ### Authentication Flow
 
@@ -134,6 +143,35 @@ After starting both frontend and backend servers, access the application through
 - **Complete**: Click checkbox to mark as completed
 - **Delete**: Click trash icon to delete todo permanently
 - **Filter**: Toggle between "All", "Active", and "Completed" views
+
+### AI Chat Interface (Phase III)
+
+Access the AI chat at http://localhost:3000/chat or click "AI Chat" from the dashboard.
+
+**Example commands:**
+```
+"Add task: Buy groceries tomorrow"
+"List my tasks"
+"What tasks are pending?"
+"Mark the grocery task as complete"
+"Update the grocery task description to include milk and eggs"
+"Delete all completed tasks"
+"Search for tasks about meeting"
+```
+
+**How it works:**
+1. Type your message in natural language
+2. The AI understands your intent and executes the appropriate action
+3. You'll see the actions taken (create, update, delete, etc.) in the response
+4. Changes are reflected immediately in your dashboard
+
+**Supported operations:**
+- `list_tasks` - List all your tasks (with optional status filter)
+- `create_task` - Create a new task
+- `update_task` - Update an existing task's title, description, or status
+- `delete_task` - Delete a task permanently
+- `mark_complete` - Mark a task as completed
+- `search_tasks` - Search tasks by title or description
 
 ## Project Structure
 
@@ -160,7 +198,8 @@ Hacathorn-II-The-Evolution-of-Todo/
 │   │   ├── services/        # Business logic layer
 │   │   │   ├── __init__.py
 │   │   │   ├── task_service.py   # Task operations
-│   │   │   └── auth_service.py   # Authentication operations
+│   │   │   ├── auth_service.py   # Authentication operations
+│   │   │   └── chat_service.py   # AI chat processing (Phase III)
 │   │   └── auth/            # Authentication utilities
 │   │       ├── __init__.py
 │   │       ├── jwt.py       # JWT verification
@@ -176,8 +215,10 @@ Hacathorn-II-The-Evolution-of-Todo/
 │   │   │   └── page.tsx     # Login page
 │   │   ├── signup/          # Sign up page
 │   │   │   └── page.tsx     # Sign up page
-│   │   └── dashboard/       # Protected dashboard
-│   │       └── page.tsx     # Task dashboard
+│   │   ├── dashboard/       # Protected dashboard
+│   │   │   └── page.tsx     # Task dashboard
+│   │   └── chat/            # AI Chat interface (Phase III)
+│   │       └── page.tsx     # Chat page
 │   ├── components/          # React components
 │   ├── lib/                 # Utilities and API client
 │   │   ├── api-client.ts    # API communication
@@ -289,6 +330,7 @@ This application follows **strict layered architecture** across frontend and bac
 - SQLModel for database ORM
 - PostgreSQL for data storage
 - JWT for authentication
+- OpenAI SDK for AI chat (Phase III)
 - Python 3.13+ for runtime
 
 **Frontend:**
@@ -308,6 +350,7 @@ This application follows **strict layered architecture** across frontend and bac
 - **Port already in use**: Change port in uvicorn command
 - **Database connection**: Verify PostgreSQL is running
 - **Authentication errors**: Check JWT secret in .env files
+- **AI Chat not working**: Verify OPENAI_API_KEY is set in backend .env
 
 ### Frontend Issues
 - **Cannot connect to backend**: Verify CORS settings and API URL
@@ -339,6 +382,35 @@ The application evolved from a console-based single-user application to a full-s
 | In-memory storage | → PostgreSQL database |
 | Single-user | → Multi-user with authentication |
 
+### Phase II → Phase III Changes
+
+| Phase II | Phase III |
+|----------|-----------|
+| Manual CRUD via UI | + AI chat for natural language commands |
+| Dashboard only | + `/chat` page with conversational interface |
+| Basic task service | + Chat service with OpenAI integration |
+| HTTP endpoints | + `/api/chat` endpoint with tool calling |
+
+## Environment Variables
+
+### Backend (.env)
+```bash
+DATABASE_URL=postgresql://user:password@localhost:5432/todo_db
+BETTER_AUTH_SECRET=your-shared-secret-key-min-32-chars
+JWT_ALGORITHM=HS256
+DEBUG=false
+CORS_ORIGINS=http://localhost:3000
+
+# Phase III - AI Chat
+OPENAI_API_KEY=sk-your-openai-api-key
+OPENAI_MODEL=gpt-4o-mini  # or gpt-4o, gpt-3.5-turbo
+```
+
+### Frontend (.env.local)
+```bash
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+
 ## License
 
 [Specify license here]
@@ -360,7 +432,7 @@ For questions or issues:
 
 ---
 
-**Phase II Complete** ✅
+**Phase III Complete** ✅
 
-Full-stack application with authentication implemented. Multi-user support with secure login/registration.
-Ready for deployment and Phase III planning.
+AI-powered chat interface added. Users can now manage tasks through natural language commands.
+Full-stack application with authentication and AI assistance implemented.
