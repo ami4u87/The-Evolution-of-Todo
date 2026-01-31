@@ -36,7 +36,44 @@ backend/
 
 - Python 3.13+
 - UV package manager
-- PostgreSQL database (local or Neon)
+- PostgreSQL database (Neon recommended for production, Docker for local dev)
+
+### Database Setup
+
+#### Option 1: Neon Serverless PostgreSQL (Recommended for Production)
+
+1. Create a free account at [Neon](https://console.neon.tech)
+2. Create a new project
+3. Copy the connection string from the dashboard (it looks like):
+   ```
+   postgresql://neondb_owner:xxxx@ep-cool-name-123456.us-east-2.aws.neon.tech/neondb?sslmode=require
+   ```
+4. Set `DATABASE_URL` in your `.env` file to this connection string
+
+**Neon Benefits:**
+- Free tier with 0.5 GB storage
+- Serverless auto-scaling
+- Automatic backups
+- Branch databases for development
+- No server management
+
+#### Option 2: Local PostgreSQL with Docker
+
+```bash
+# Start PostgreSQL container
+docker-compose up postgres -d
+
+# Connection string (automatically configured):
+# DATABASE_URL=postgresql://todo_user:todo_password@localhost:5432/todo_db
+```
+
+#### Option 3: SQLite (Quick Local Testing Only)
+
+For quick local testing without Docker:
+```
+DATABASE_URL=sqlite:///./test_todo.db
+```
+**Note:** SQLite is NOT recommended for production due to lack of concurrent write support.
 
 ### Installation
 
@@ -46,8 +83,8 @@ backend/
    ```
 
 2. Update `.env` with your configuration:
-   - Set `DATABASE_URL` to your PostgreSQL connection string
-   - Set `BETTER_AUTH_SECRET` (same secret as frontend)
+   - Set `DATABASE_URL` to your database connection string (see Database Setup above)
+   - Set `BETTER_AUTH_SECRET` (same secret as frontend, minimum 32 characters)
 
 3. Install dependencies using UV:
    ```bash
@@ -159,7 +196,19 @@ docker-compose up backend
 
 ## Environment Variables
 
-See `.env.example` for all required and optional environment variables.
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `DATABASE_URL` | Yes | Database connection string (Neon, PostgreSQL, or SQLite) |
+| `BETTER_AUTH_SECRET` | Yes | Shared secret with frontend for JWT verification (min 32 chars) |
+| `JWT_ALGORITHM` | No | JWT algorithm (default: HS256) |
+| `API_PREFIX` | No | API route prefix (default: /api) |
+| `DEBUG` | No | Enable debug mode (default: false) |
+| `CORS_ORIGINS` | No | Allowed CORS origins (default: http://localhost:3000) |
+| `AI_PROVIDER` | No | AI provider for chat: "groq" or "openai" |
+| `GROQ_API_KEY` | No | Groq API key (free at https://console.groq.com) |
+| `OPENAI_API_KEY` | No | OpenAI API key |
+
+See `.env.example` for detailed configuration options.
 
 ## Contributing
 
