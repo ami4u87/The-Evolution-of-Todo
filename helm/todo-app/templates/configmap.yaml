@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "todo-app.fullname" . }}-config
+  namespace: {{ .Values.global.namespace | default .Release.Namespace }}
+  labels:
+    {{- include "todo-app.labels" . | nindent 4 }}
+data:
+  # Backend configuration
+  DEBUG: {{ .Values.backend.env.debug | quote }}
+  API_PREFIX: {{ .Values.backend.env.apiPrefix | quote }}
+  JWT_ALGORITHM: {{ .Values.backend.env.jwtAlgorithm | quote }}
+  AI_PROVIDER: {{ .Values.backend.env.aiProvider | quote }}
+  GROQ_MODEL: {{ .Values.backend.env.groqModel | quote }}
+  OPENAI_MODEL: {{ .Values.backend.env.openaiModel | quote }}
+  CORS_ORIGINS: {{ .Values.configMap.corsOrigins | quote }}
+
+  # Frontend configuration
+  NEXT_PUBLIC_API_URL: {{ .Values.configMap.apiUrl | quote }}
+  BETTER_AUTH_URL: {{ .Values.frontend.env.betterAuthUrl | quote }}

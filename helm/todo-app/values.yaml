@@ -1,0 +1,225 @@
+# =============================================================================
+# Todo App Helm Chart - Default Values
+# =============================================================================
+
+# Global settings
+global:
+  namespace: todo-app
+  # Image pull secrets (if using private registry)
+  imagePullSecrets: []
+
+# -----------------------------------------------------------------------------
+# Backend Configuration (FastAPI)
+# -----------------------------------------------------------------------------
+backend:
+  enabled: true
+  name: backend
+
+  replicaCount: 2
+
+  image:
+    repository: todo-backend
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  service:
+    type: ClusterIP
+    port: 8000
+    targetPort: 8000
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+  # Autoscaling
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+  # Health checks
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 8000
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: 8000
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+  # Environment variables (non-sensitive)
+  env:
+    debug: "false"
+    apiPrefix: "/api"
+    jwtAlgorithm: "HS256"
+    aiProvider: "groq"
+    groqModel: "llama-3.3-70b-versatile"
+    openaiModel: "gpt-4o-mini"
+
+  # Node selector and tolerations
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# -----------------------------------------------------------------------------
+# Frontend Configuration (Next.js)
+# -----------------------------------------------------------------------------
+frontend:
+  enabled: true
+  name: frontend
+
+  replicaCount: 2
+
+  image:
+    repository: todo-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  service:
+    type: ClusterIP
+    port: 3000
+    targetPort: 3000
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+  # Autoscaling
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+  # Health checks
+  livenessProbe:
+    httpGet:
+      path: /
+      port: 3000
+    initialDelaySeconds: 15
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /
+      port: 3000
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+  # Environment variables (non-sensitive)
+  env:
+    betterAuthUrl: "http://todo.local"
+
+  # Node selector and tolerations
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# -----------------------------------------------------------------------------
+# Ingress Configuration
+# -----------------------------------------------------------------------------
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    # Uncomment for TLS with cert-manager
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
+
+  hosts:
+    - host: todo.local
+      paths:
+        - path: /api
+          pathType: Prefix
+          service: backend
+          port: 8000
+        - path: /
+          pathType: Prefix
+          service: frontend
+          port: 3000
+
+  # TLS configuration (uncomment for HTTPS)
+  tls: []
+  # - secretName: todo-tls
+  #   hosts:
+  #     - todo.local
+
+# -----------------------------------------------------------------------------
+# Secrets Configuration
+# IMPORTANT: Override these values in production!
+# Use --set or a separate values file (values-production.yaml)
+# -----------------------------------------------------------------------------
+secrets:
+  # Neon PostgreSQL connection string
+  # Format: postgresql://user:password@host.neon.tech/dbname?sslmode=require
+  databaseUrl: ""
+
+  # Better Auth shared secret (min 32 characters)
+  betterAuthSecret: ""
+
+  # Groq API key (for AI chat)
+  groqApiKey: ""
+
+  # OpenAI API key (optional, for AI chat)
+  openaiApiKey: ""
+
+# -----------------------------------------------------------------------------
+# ConfigMap Configuration
+# -----------------------------------------------------------------------------
+configMap:
+  # CORS origins (comma-separated or JSON array)
+  corsOrigins: '["http://todo.local"]'
+
+  # API URL for frontend (internal service URL)
+  apiUrl: "http://backend:8000"
+
+# -----------------------------------------------------------------------------
+# Service Account
+# -----------------------------------------------------------------------------
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
+# -----------------------------------------------------------------------------
+# Pod Security Context
+# -----------------------------------------------------------------------------
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: false
+  capabilities:
+    drop:
+      - ALL
