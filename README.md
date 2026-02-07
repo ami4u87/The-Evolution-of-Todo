@@ -1,4 +1,4 @@
-# The Evolution of Todo - AI-Powered Task Management (Phase III)
+# The Evolution of Todo - AI-Powered Task Management (Phase IV)
 
 A full-stack todo application with AI-powered chat interface for natural language task management. This is Phase III of a multi-phase project that evolved from a console application to a web-based system with AI assistance.
 
@@ -432,7 +432,46 @@ For questions or issues:
 
 ---
 
-**Phase III Complete** ✅
+## Phase IV: Kubernetes Deployment
 
-AI-powered chat interface added. Users can now manage tasks through natural language commands.
-Full-stack application with authentication and AI assistance implemented.
+The application can be deployed to Kubernetes using Helm charts or raw manifests.
+
+### Quick Deploy (Helm)
+
+```bash
+# Build Docker images
+./scripts/build-images.sh
+
+# Set secrets
+export DATABASE_URL="postgresql://user:pass@host.neon.tech/db?sslmode=require"
+export BETTER_AUTH_SECRET="your-secret-min-32-chars"
+export GROQ_API_KEY="your-groq-api-key"
+
+# Deploy with Helm
+./scripts/deploy-helm.sh
+```
+
+### Quick Deploy (kubectl)
+
+```bash
+# Build images and deploy
+./scripts/build-images.sh
+./scripts/deploy-kubectl.sh
+```
+
+### Kubernetes Features
+- **Production Dockerfiles**: Multi-stage builds for optimized images
+- **Helm Charts**: Configurable deployment with values.yaml
+- **Auto-scaling**: HPA for both frontend and backend
+- **Ingress**: Path-based routing with NGINX
+- **Secrets Management**: Kubernetes Secrets for sensitive data
+- **Health Checks**: Liveness and readiness probes
+
+See [docs/kubernetes-deployment.md](docs/kubernetes-deployment.md) for full deployment guide.
+
+---
+
+**Phase IV Complete** ✅
+
+Kubernetes deployment infrastructure added with Helm charts, production Dockerfiles, and deployment scripts.
+Application can be deployed to any Kubernetes cluster (minikube, kind, EKS, GKE, AKS).

@@ -1,0 +1,34 @@
+# Patterns to ignore when building packages
+.DS_Store
+.git/
+.gitignore
+.bzr/
+.bzrignore
+.hg/
+.hgignore
+.svn/
+
+# IDE
+*.swp
+*.bak
+*.tmp
+*.orig
+*~
+.vscode/
+.idea/
+
+# Test files
+*.test.yaml
+tests/
+
+# Documentation (optional - remove if you want docs in package)
+# README.md
+# CHANGELOG.md
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# Local development
+values-local.yaml

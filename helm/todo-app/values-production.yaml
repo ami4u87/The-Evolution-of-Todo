@@ -1,0 +1,118 @@
+# =============================================================================
+# Todo App Helm Chart - Production Values
+# =============================================================================
+# USAGE: helm install todo-app ./helm/todo-app -f ./helm/todo-app/values-production.yaml
+#
+# IMPORTANT: Set secrets via --set flags or environment variables:
+#   helm install todo-app ./helm/todo-app \
+#     -f ./helm/todo-app/values-production.yaml \
+#     --set secrets.databaseUrl="$DATABASE_URL" \
+#     --set secrets.betterAuthSecret="$BETTER_AUTH_SECRET" \
+#     --set secrets.groqApiKey="$GROQ_API_KEY"
+# =============================================================================
+
+# Global settings
+global:
+  namespace: todo-app-prod
+
+# -----------------------------------------------------------------------------
+# Backend Configuration (Production)
+# -----------------------------------------------------------------------------
+backend:
+  replicaCount: 3
+
+  image:
+    repository: your-registry.com/todo-backend
+    tag: "2.0.0"
+    pullPolicy: Always
+
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 20
+    targetCPUUtilizationPercentage: 60
+    targetMemoryUtilizationPercentage: 70
+
+  env:
+    debug: "false"
+
+# -----------------------------------------------------------------------------
+# Frontend Configuration (Production)
+# -----------------------------------------------------------------------------
+frontend:
+  replicaCount: 3
+
+  image:
+    repository: your-registry.com/todo-frontend
+    tag: "2.0.0"
+    pullPolicy: Always
+
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 20
+    targetCPUUtilizationPercentage: 60
+    targetMemoryUtilizationPercentage: 70
+
+  env:
+    betterAuthUrl: "https://todo.yourdomain.com"
+
+# -----------------------------------------------------------------------------
+# Ingress Configuration (Production)
+# -----------------------------------------------------------------------------
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+
+  hosts:
+    - host: todo.yourdomain.com
+      paths:
+        - path: /api
+          pathType: Prefix
+          service: backend
+          port: 8000
+        - path: /
+          pathType: Prefix
+          service: frontend
+          port: 3000
+
+  tls:
+    - secretName: todo-tls
+      hosts:
+        - todo.yourdomain.com
+
+# -----------------------------------------------------------------------------
+# ConfigMap Configuration (Production)
+# -----------------------------------------------------------------------------
+configMap:
+  corsOrigins: '["https://todo.yourdomain.com"]'
+  apiUrl: "http://backend:8000"
+
+# -----------------------------------------------------------------------------
+# Secrets - MUST be provided via --set
+# -----------------------------------------------------------------------------
+secrets:
+  databaseUrl: ""      # --set secrets.databaseUrl="postgresql://..."
+  betterAuthSecret: "" # --set secrets.betterAuthSecret="your-secret"
+  groqApiKey: ""       # --set secrets.groqApiKey="your-key"
+  openaiApiKey: ""     # --set secrets.openaiApiKey="your-key" (optional)

@@ -1,0 +1,22 @@
+apiVersion: v2
+name: todo-app
+description: AI-powered Todo Application with FastAPI backend and Next.js frontend
+type: application
+version: 1.0.0
+appVersion: "2.0.0"
+
+keywords:
+  - todo
+  - fastapi
+  - nextjs
+  - kubernetes
+  - ai
+
+maintainers:
+  - name: Todo Team
+    email: team@todo.local
+
+dependencies: []
+
+annotations:
+  category: Productivity
