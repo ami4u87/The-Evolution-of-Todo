@@ -7,10 +7,17 @@ Migrated from Phase I src/services.py with the following changes:
 - Maintained same validation logic and business rules
 """
 
+import logging
 from uuid import UUID
+
 from sqlmodel import Session, select
+
+from app.events.models import EventType, TaskEvent
+from app.events.publisher import EventPublisher
 from app.models.task import Task
 from app.schemas.task import TaskCreate, TaskUpdate
+
+logger = logging.getLogger(__name__)
 
 
 class TaskService:
@@ -67,6 +74,9 @@ class TaskService:
         self.session.add(task)
         self.session.commit()
         self.session.refresh(task)
+
+        # Emit event (best-effort, does not block on failure)
+        self._emit_event(EventType.TASK_CREATED, task)
 
         return task
 
@@ -140,6 +150,9 @@ class TaskService:
         self.session.commit()
         self.session.refresh(task)
 
+        # Emit event
+        self._emit_event(EventType.TASK_COMPLETED, task)
+
         return task
 
     def update_task(
@@ -189,6 +202,9 @@ class TaskService:
         self.session.commit()
         self.session.refresh(task)
 
+        # Emit event
+        self._emit_event(EventType.TASK_UPDATED, task)
+
         return task
 
     def delete_task(self, user_id: str, task_id: UUID) -> bool:
@@ -212,7 +228,36 @@ class TaskService:
         if task is None:
             return False
 
+        # Capture event data before deletion
+        event = TaskEvent.from_task(
+            event_type=EventType.TASK_DELETED,
+            task_id=task.id,
+            user_id=task.user_id,
+            title=task.title,
+            status=task.status,
+        )
+
         self.session.delete(task)
         self.session.commit()
 
+        # Emit event after successful deletion
+        publisher = EventPublisher.get_instance()
+        publisher.publish_sync(event)
+
         return True
+
+    def _emit_event(self, event_type: EventType, task: Task) -> None:
+        """Emit a task event (best-effort, does not block on failure)."""
+        try:
+            event = TaskEvent.from_task(
+                event_type=event_type,
+                task_id=task.id,
+                user_id=task.user_id,
+                title=task.title,
+                description=task.description,
+                status=task.status,
+            )
+            publisher = EventPublisher.get_instance()
+            publisher.publish_sync(event)
+        except Exception:
+            logger.exception("Failed to emit %s event for task %s", event_type.value, task.id)

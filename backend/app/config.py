@@ -31,6 +31,10 @@ class Settings(BaseSettings):
     groq_api_key: str = ""
     groq_model: str = "llama-3.3-70b-versatile"
 
+    # Dapr / Event-Driven Architecture (Phase V)
+    dapr_http_port: int = 3500
+    events_enabled: bool = True
+
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=False)
 
 

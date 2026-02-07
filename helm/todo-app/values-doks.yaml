@@ -1,0 +1,130 @@
+# =============================================================================
+# Todo App Helm Chart - DigitalOcean Kubernetes (DOKS) Values
+# =============================================================================
+# USAGE:
+#   helm install todo-app ./helm/todo-app \
+#     -f ./helm/todo-app/values-doks.yaml \
+#     --namespace todo-app --create-namespace \
+#     --set secrets.databaseUrl="$DATABASE_URL" \
+#     --set secrets.betterAuthSecret="$BETTER_AUTH_SECRET" \
+#     --set secrets.groqApiKey="$GROQ_API_KEY"
+# =============================================================================
+
+# Global settings
+global:
+  namespace: todo-app
+
+# -----------------------------------------------------------------------------
+# Backend Configuration (DOKS)
+# -----------------------------------------------------------------------------
+backend:
+  replicaCount: 2
+
+  image:
+    repository: registry.digitalocean.com/todo-app/todo-backend
+    tag: latest
+    pullPolicy: Always
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+
+  env:
+    debug: "false"
+
+# -----------------------------------------------------------------------------
+# Frontend Configuration (DOKS)
+# -----------------------------------------------------------------------------
+frontend:
+  replicaCount: 2
+
+  image:
+    repository: registry.digitalocean.com/todo-app/todo-frontend
+    tag: latest
+    pullPolicy: Always
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+
+  env:
+    betterAuthUrl: "https://todo.yourdomain.com"
+
+# -----------------------------------------------------------------------------
+# Dapr + Kafka (Phase V Event-Driven)
+# -----------------------------------------------------------------------------
+dapr:
+  enabled: true
+  kafka:
+    brokers: "todo-kafka-kafka-bootstrap.kafka.svc.cluster.local:9092"
+    authType: "none"
+    disableTls: "true"
+
+# -----------------------------------------------------------------------------
+# Ingress Configuration (DOKS with DO Load Balancer)
+# -----------------------------------------------------------------------------
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # Uncomment when cert-manager is configured
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
+    # DigitalOcean Load Balancer annotations
+    service.beta.kubernetes.io/do-loadbalancer-protocol: "http"
+    service.beta.kubernetes.io/do-loadbalancer-algorithm: "round_robin"
+    service.beta.kubernetes.io/do-loadbalancer-healthcheck-path: "/health"
+
+  hosts:
+    - host: todo.yourdomain.com
+      paths:
+        - path: /api
+          pathType: Prefix
+          service: backend
+          port: 8000
+        - path: /
+          pathType: Prefix
+          service: frontend
+          port: 3000
+
+  # Uncomment for TLS
+  # tls:
+  #   - secretName: todo-tls
+  #     hosts:
+  #       - todo.yourdomain.com
+
+# -----------------------------------------------------------------------------
+# ConfigMap Configuration (DOKS)
+# -----------------------------------------------------------------------------
+configMap:
+  corsOrigins: '["https://todo.yourdomain.com"]'
+  apiUrl: "http://todo-app-backend:8000"
+
+# -----------------------------------------------------------------------------
+# DigitalOcean Container Registry
+# -----------------------------------------------------------------------------
+global:
+  namespace: todo-app
+  imagePullSecrets:
+    - name: do-registry

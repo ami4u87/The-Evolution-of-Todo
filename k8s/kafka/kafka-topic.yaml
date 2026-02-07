@@ -1,0 +1,19 @@
+# =============================================================================
+# Kafka Topic - Task Events
+# =============================================================================
+
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: task-events
+  namespace: kafka
+  labels:
+    strimzi.io/cluster: todo-kafka
+    app.kubernetes.io/part-of: todo-app
+spec:
+  partitions: 3
+  replicas: 1
+  config:
+    retention.ms: 604800000  # 7 days retention
+    cleanup.policy: delete
+    max.message.bytes: 1048576  # 1MB max message size

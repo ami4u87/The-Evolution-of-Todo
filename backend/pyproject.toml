@@ -1,7 +1,7 @@
 [project]
 name = "todo-backend"
-version = "2.0.0"
-description = "FastAPI backend for Evolution of Todo - Phase II"
+version = "5.0.0"
+description = "FastAPI backend for Evolution of Todo - Phase V"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -18,6 +18,8 @@ dependencies = [
     "email-validator>=2.2.0",
     "openai>=1.0.0",
     "groq>=0.4.0",
+    # Phase V: Event-driven architecture
+    "httpx>=0.27.0",
 ]
 
 [project.optional-dependencies]

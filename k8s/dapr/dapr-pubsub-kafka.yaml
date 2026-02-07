@@ -1,0 +1,35 @@
+# =============================================================================
+# Dapr Pub/Sub Component - Kafka Binding
+# =============================================================================
+# Connects Dapr pub/sub to the Strimzi Kafka cluster.
+# Backend pods publish events via Dapr sidecar HTTP API:
+#   POST http://localhost:3500/v1.0/publish/kafka-pubsub/task-events
+# =============================================================================
+
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: kafka-pubsub
+  namespace: todo-app
+spec:
+  type: pubsub.kafka
+  version: v1
+  metadata:
+    # Kafka broker address (Strimzi internal service)
+    - name: brokers
+      value: "todo-kafka-kafka-bootstrap.kafka.svc.cluster.local:9092"
+    # Consumer group for this application
+    - name: consumerGroup
+      value: "todo-backend"
+    # Authentication (none for internal plain listener)
+    - name: authType
+      value: "none"
+    # Disable TLS for internal communication
+    - name: disableTls
+      value: "true"
+    # Initial offset for new consumers
+    - name: initialOffset
+      value: "newest"
+    # Max message size (1MB)
+    - name: maxMessageBytes
+      value: "1048576"

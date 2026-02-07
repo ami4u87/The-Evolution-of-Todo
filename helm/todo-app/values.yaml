@@ -191,6 +191,16 @@ secrets:
   openaiApiKey: ""
 
 # -----------------------------------------------------------------------------
+# Dapr / Event-Driven Architecture (Phase V)
+# -----------------------------------------------------------------------------
+dapr:
+  enabled: false  # Set to true when Dapr is installed on the cluster
+  kafka:
+    brokers: "todo-kafka-kafka-bootstrap.kafka.svc.cluster.local:9092"
+    authType: "none"
+    disableTls: "true"
+
+# -----------------------------------------------------------------------------
 # ConfigMap Configuration
 # -----------------------------------------------------------------------------
 configMap:

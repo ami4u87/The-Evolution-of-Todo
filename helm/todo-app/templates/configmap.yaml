@@ -15,6 +15,9 @@ data:
   OPENAI_MODEL: {{ .Values.backend.env.openaiModel | quote }}
   CORS_ORIGINS: {{ .Values.configMap.corsOrigins | quote }}
 
+  # Event-driven architecture (Phase V)
+  EVENTS_ENABLED: {{ .Values.dapr.enabled | quote }}
+
   # Frontend configuration
   NEXT_PUBLIC_API_URL: {{ .Values.configMap.apiUrl | quote }}
   BETTER_AUTH_URL: {{ .Values.frontend.env.betterAuthUrl | quote }}

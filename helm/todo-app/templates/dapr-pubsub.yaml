@@ -1,0 +1,25 @@
+{{- if .Values.dapr.enabled }}
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: kafka-pubsub
+  namespace: {{ .Values.global.namespace | default .Release.Namespace }}
+  labels:
+    {{- include "todo-app.labels" . | nindent 4 }}
+spec:
+  type: pubsub.kafka
+  version: v1
+  metadata:
+    - name: brokers
+      value: {{ .Values.dapr.kafka.brokers | quote }}
+    - name: consumerGroup
+      value: "todo-backend"
+    - name: authType
+      value: {{ .Values.dapr.kafka.authType | quote }}
+    - name: disableTls
+      value: {{ .Values.dapr.kafka.disableTls | quote }}
+    - name: initialOffset
+      value: "newest"
+    - name: maxMessageBytes
+      value: "1048576"
+{{- end }}

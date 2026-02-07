@@ -1,4 +1,4 @@
-# The Evolution of Todo - AI-Powered Task Management (Phase IV)
+# The Evolution of Todo - AI-Powered Task Management (Phase V)
 
 A full-stack todo application with AI-powered chat interface for natural language task management. This is Phase III of a multi-phase project that evolved from a console application to a web-based system with AI assistance.
 
@@ -475,3 +475,41 @@ See [docs/kubernetes-deployment.md](docs/kubernetes-deployment.md) for full depl
 
 Kubernetes deployment infrastructure added with Helm charts, production Dockerfiles, and deployment scripts.
 Application can be deployed to any Kubernetes cluster (minikube, kind, EKS, GKE, AKS).
+
+---
+
+## Phase V: Advanced Cloud Deployment (Event-Driven + DOKS)
+
+Event-driven architecture with Kafka and Dapr, deployed to DigitalOcean Kubernetes.
+
+### Event-Driven Architecture
+- **Kafka** (Strimzi): Message broker for task events
+- **Dapr**: Sidecar pattern for pub/sub communication
+- **CloudEvents**: Standardized event schema
+- Events emitted on: task create, update, complete, delete
+
+### Deploy to DigitalOcean
+
+```bash
+# Install infrastructure (Kafka, Dapr, Ingress, cert-manager)
+./scripts/setup-doks-prereqs.sh
+
+# Set secrets and deploy
+export DATABASE_URL="postgresql://..."
+export BETTER_AUTH_SECRET="your-secret"
+./scripts/deploy-doks.sh
+```
+
+### Monitor Events
+
+```bash
+kubectl logs -f deployment/todo-app-backend -n todo-app | grep "Event:"
+```
+
+See [docs/doks-deployment.md](docs/doks-deployment.md) for full DOKS deployment guide.
+
+---
+
+**Phase V Complete** ✅
+
+Event-driven architecture with Kafka + Dapr added. Application deployable to DigitalOcean Kubernetes with auto-scaling, event streaming, and managed infrastructure.

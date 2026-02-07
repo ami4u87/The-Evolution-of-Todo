@@ -20,6 +20,13 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         checksum/secret: {{ include (print $.Template.BasePath "/secrets.yaml") . | sha256sum }}
+        {{- if .Values.dapr.enabled }}
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "todo-backend"
+        dapr.io/app-port: "{{ .Values.backend.service.targetPort }}"
+        dapr.io/app-protocol: "http"
+        dapr.io/log-level: "info"
+        {{- end }}
     spec:
       {{- with .Values.global.imagePullSecrets }}
       imagePullSecrets:
@@ -98,6 +105,13 @@ spec:
                 configMapKeyRef:
                   name: {{ include "todo-app.fullname" . }}-config
                   key: CORS_ORIGINS
+            - name: EVENTS_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "todo-app.fullname" . }}-config
+                  key: EVENTS_ENABLED
+            - name: DAPR_HTTP_PORT
+              value: "3500"
           livenessProbe:
             {{- toYaml .Values.backend.livenessProbe | nindent 12 }}
           readinessProbe:

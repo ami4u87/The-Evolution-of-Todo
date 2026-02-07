@@ -1,0 +1,23 @@
+# =============================================================================
+# Dapr Subscription - Task Events
+# =============================================================================
+# Defines which topics Dapr routes to which endpoints.
+# Future consumers can subscribe to task-events for:
+#   - Notifications
+#   - Analytics
+#   - Audit logging
+#   - Cache invalidation
+# =============================================================================
+
+apiVersion: dapr.io/v2alpha1
+kind: Subscription
+metadata:
+  name: task-events-subscription
+  namespace: todo-app
+spec:
+  pubsubname: kafka-pubsub
+  topic: task-events
+  routes:
+    default: /api/events/tasks
+  scopes:
+    - todo-backend
