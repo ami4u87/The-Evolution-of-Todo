@@ -3,8 +3,8 @@
 .gitignore
 
 # Documentation
-*.md
 docs/
+!backend/README.md
 
 # IDE
 .vscode/
