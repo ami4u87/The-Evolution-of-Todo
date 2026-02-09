@@ -13,8 +13,8 @@ WORKDIR /app
 # Install UV package manager
 RUN pip install --no-cache-dir uv
 
-# Copy dependency files
-COPY backend/pyproject.toml ./
+# Copy dependency and build files
+COPY backend/pyproject.toml backend/README.md ./
 
 # Create virtual environment and install dependencies
 RUN uv venv /opt/venv && \
