@@ -1,0 +1,32 @@
+# =============================================================================
+# Caddy Reverse Proxy Configuration
+# Auto-HTTPS for domains, HTTP-only for bare IPs
+# =============================================================================
+
+{$DOMAIN} {
+	# Compression
+	encode zstd gzip
+
+	# Security headers
+	header {
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	# Backend API routes
+	handle /api/* {
+		reverse_proxy backend:8000
+	}
+
+	# Health check endpoint (proxied to backend)
+	handle /health {
+		reverse_proxy backend:8000
+	}
+
+	# Everything else goes to the Next.js frontend
+	handle {
+		reverse_proxy frontend:3000
+	}
+}

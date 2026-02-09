@@ -1,0 +1,65 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+docs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment files (secrets)
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Node.js
+node_modules/
+.next/
+.npm/
+npm-debug.log*
+
+# Testing
+coverage/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Kubernetes and Helm
+k8s/
+helm/
+
+# Local files
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Spec files
+specs/
+.specify/
+.spec-kit/
+
+# History
+history/
+
+# Subagents
+subagents/
+
+# Caddy data (runtime only)
+caddy_data/
+caddy_config/

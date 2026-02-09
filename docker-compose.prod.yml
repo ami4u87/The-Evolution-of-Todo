@@ -1,0 +1,75 @@
+# =============================================================================
+# Production Docker Compose - Todo Application
+# Uses external Neon PostgreSQL, Caddy reverse proxy with auto-HTTPS
+# =============================================================================
+
+services:
+  # FastAPI Backend
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend/Dockerfile
+    container_name: todo-backend
+    env_file:
+      - .env.production
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      start_period: 10s
+      retries: 3
+    networks:
+      - todo-prod-network
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    container_name: todo-frontend
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      start_period: 10s
+      retries: 3
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - todo-prod-network
+
+  # Caddy Reverse Proxy (handles HTTPS automatically)
+  caddy:
+    image: caddy:2-alpine
+    container_name: todo-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN: ${CADDY_DOMAIN:-:80}
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    networks:
+      - todo-prod-network
+
+networks:
+  todo-prod-network:
+    driver: bridge
+
+volumes:
+  caddy_data:
+  caddy_config:
